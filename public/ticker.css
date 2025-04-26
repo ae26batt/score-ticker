@@ -9,36 +9,50 @@ body, html {
   background-size: cover;
   color: white;
   overflow-x: hidden;
-  overflow-y: hidden; /* 💥 Important: disable scrollbars */
+  overflow-y: hidden; /* Disable scrollbars */
 }
 
 .header-spacer {
-  height: 200px;
+  height: 200px; /* Protect your airplane embedded header */
 }
 
 .leaderboard-list {
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
-  text-align: center;
-  margin-top: 20px;
+  width: 80%;
+  max-width: 1200px;
+  text-align: left;
 }
 
 .leaderboard-list li {
-  font-size: 2rem;
-  margin: 20px 0;
-  padding: 10px 30px;
+  font-size: 8rem; /* 💥 5x bigger!! */
+  margin: 30px 0;
+  padding: 10px 20px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between; /* Name on left, Score on right */
   align-items: center;
-  flex-direction: column;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-  opacity: 0;
-  animation: fadeIn 1s forwards;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
 }
 
-/* Fade in effect */
+/* Make names and scores split cleanly */
+.player-name {
+  flex: 1;
+  text-align: left;
+}
+
+.player-score {
+  flex: 0;
+  text-align: right;
+  margin-left: 20px;
+}
+
+/* Fade-in animation ONLY when new list item added */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease forwards;
 }
