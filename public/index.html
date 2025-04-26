@@ -1,27 +1,19 @@
-<h1>Welcome to Score Ticker!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Join Scoreboard</title>
+  <link rel="stylesheet" href="/index.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Important for mobile -->
+</head>
+<body>
+  <div class="container">
+    <h1 class="welcome-header">Welcome to The Birthday Girls Beat Boggs</h1>
 
-<input type="text" id="playerName" placeholder="Enter your name" />
-<button onclick="createPlayer()">Create New Controller</button>
-
-<script>
-async function createPlayer() {
-  const name = document.getElementById('playerName').value.trim();
-  if (!name) {
-    alert('Please enter your name!');
-    return;
-  }
-
-  const response = await fetch('/create-player', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
-  });
-
-  const { playerId } = await response.json();
-  
-  // Save playerID locally
-  localStorage.setItem('playerID', playerId);
-
-  window.location.href = `/controller/${playerId}`;
-}
-</script>
+    <form action="/create" method="POST" class="join-form">
+      <input type="text" name="name" placeholder="Enter Your Name" required class="input-field">
+      <button type="submit" class="join-button">Join</button>
+    </form>
+  </div>
+</body>
+</html>
