@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet"> <!-- You can remove if only Courier New is used -->
   <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
   <button id="fullscreenBtn" class="fullscreen-button" onclick="toggleFullscreen()">Fullscreen</button>
 
-  <div class="header-spacer"></div>
+  <div class="header-spacer"></div> <!-- Spacer to avoid overlapping background header -->
 
   <ul id="leaderboard" class="leaderboard-list"></ul>
 
   <script>
     let fullscreenButton = document.getElementById('fullscreenBtn');
-    let currentPlayers = {};
-    let autoScrollInterval;
-    const HEADER_HEIGHT = 200; // Space in pixels for airplane embedded header
+    let currentPlayers = {}; 
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
@@ -26,8 +25,13 @@
       }
     }
 
+    // Hide fullscreen button while in fullscreen
     document.addEventListener('fullscreenchange', () => {
-      fullscreenButton.style.display = document.fullscreenElement ? 'none' : 'block';
+      if (document.fullscreenElement) {
+        fullscreenButton.style.display = 'none';
+      } else {
+        fullscreenButton.style.display = 'block';
+      }
     });
 
     function loadLeaderboard() {
@@ -43,48 +47,53 @@
       leaderboard.innerHTML = '';
 
       const sortedPlayers = Object.entries(players)
-        .sort(([, a], [, b]) => b.score - a.score);
+        .sort(([, a], [, b]) => b.score - a.score); // Sort highest score first
+
+      const topPlayerID = sortedPlayers.length > 0 ? sortedPlayers[0][0] : null;
 
       sortedPlayers.forEach(([id, player]) => {
         const row = document.createElement('li');
+
+        if (!currentPlayers[id]) {
+          row.classList.add('fade-in');
+        }
+
         row.innerHTML = `
-          <span class="player-name">${player.name}</span>
-          <span class="player-score">${player.score}</span>
+          <span class="player-name">${id === topPlayerID ? "🥇 " : ""}${player.name}</span>
+          <span class="player-score" id="score-${id}">0</span>
         `;
+
         leaderboard.appendChild(row);
+
+        // Animate the score counting up
+        animateScore(`score-${id}`, currentPlayers[id]?.score || 0, player.score);
       });
 
-      if (sortedPlayers.length >= 5) {
-        startAutoScroll();
-      }
+      // Update current players memory
+      currentPlayers = { ...players };
     }
 
-    function startAutoScroll() {
-      clearInterval(autoScrollInterval); // Avoid duplicates
-      autoScrollInterval = setInterval(() => {
-        if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
-          setTimeout(() => {
-            window.scrollTo({ top: HEADER_HEIGHT, behavior: 'instant' });
-          }, 3000); // Pause for 3 seconds at bottom
-        } else {
-          window.scrollBy(0, 1);
+    function animateScore(elementId, start, end) {
+      const element = document.getElementById(elementId);
+      const duration = 800; // milliseconds
+      const frameRate = 60; // frames per second
+      const totalFrames = Math.round(duration / (1000 / frameRate));
+      let frame = 0;
+
+      const counter = setInterval(() => {
+        frame++;
+        const progress = frame / totalFrames;
+        const currentScore = Math.round(start + (end - start) * progress);
+        element.innerText = currentScore;
+
+        if (frame === totalFrames) {
+          clearInterval(counter);
         }
-      }, 30); // Very smooth small step scrolling
+      }, 1000 / frameRate);
     }
 
-    // Scroll protection: never allow scrollY < HEADER_HEIGHT
-    window.addEventListener('scroll', () => {
-      if (window.scrollY < HEADER_HEIGHT) {
-        window.scrollTo({ top: HEADER_HEIGHT });
-      }
-    });
-
-    window.addEventListener('load', () => {
-      window.scrollTo({ top: HEADER_HEIGHT }); // Always start below header
-      loadLeaderboard();
-    });
-
-    setInterval(loadLeaderboard, 3000); // Refresh players every 3 sec
+    window.addEventListener('load', loadLeaderboard);
+    setInterval(loadLeaderboard, 3000); // Refresh leaderboard every 3 seconds
   </script>
 </body>
 </html>
