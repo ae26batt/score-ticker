@@ -22,7 +22,7 @@ body, html {
 }
 
 .leaderboard-list li {
-  font-size: 4rem;
+  font-size: 5rem;
   margin: 20px 0;
   padding: 10px 30px;
   display: flex;
@@ -70,4 +70,8 @@ body, html {
   color: white;
   font-weight: bold;
   text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
+}
+
+.header-spacer {
+  height: 400px; /* adjust if needed */
 }
