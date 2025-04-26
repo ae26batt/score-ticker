@@ -22,7 +22,7 @@ body, html {
 }
 
 .leaderboard-list li {
-  font-size: 3rem;
+  font-size: 4rem;
   margin: 20px 0;
   padding: 10px 30px;
   display: flex;
@@ -73,5 +73,5 @@ body, html {
 }
 
 .header-spacer {
-  height: 200px;
+  height: 400px;
 }
