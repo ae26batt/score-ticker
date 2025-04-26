@@ -13,15 +13,15 @@ body, html {
 }
 
 .leaderboard-list {
-  margin-top: 150px;
   list-style: none;
   padding: 0;
+  margin: 0 auto;
   margin-left: 10%;
   margin-right: 10%;
 }
 
 .leaderboard-list li {
-  font-size: 2rem;
+  font-size: 6rem;
   margin: 20px 0;
   padding: 10px 30px;
   display: flex;
@@ -61,7 +61,7 @@ body, html {
 
 /* Highlight Top Player */
 .leaderboard-list li:first-child {
-  color: gold;
+  color: white;
   font-weight: bold;
   text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
 }
