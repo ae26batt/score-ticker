@@ -1,21 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Score Ticker</title>
-</head>
-<body>
-  <h1>Welcome to Score Ticker</h1>
-  <button onclick="createPlayer()">Create My Score Controller</button>
-
- <script>
-  const playerID = localStorage.getItem('playerID');
-  if (playerID) {
-    window.location.href = `/controller/${playerID}`;
-  }
-</script>
-
 <h1>Welcome to Score Ticker!</h1>
-<a href="/create">Create New Controller</a>
-</body>
-</html>
+
+<input type="text" id="playerName" placeholder="Enter your name" />
+<button onclick="createPlayer()">Create New Controller</button>
+
+<script>
+async function createPlayer() {
+  const name = document.getElementById('playerName').value.trim();
+  if (!name) {
+    alert('Please enter your name!');
+    return;
+  }
+
+  const response = await fetch('/create', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+
+  const { playerID } = await response.json();
+  
+  // Save playerID locally
+  localStorage.setItem('playerID', playerID);
+
+  window.location.href = `/controller/${playerID}`;
+}
+</script>

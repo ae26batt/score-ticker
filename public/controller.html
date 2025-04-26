@@ -1,29 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Player Controller</title>
-  <script src="/socket.io/socket.io.js"></script>
-</head>
-<body>
-  <h1>Player Score Controller</h1>
-  <input type="number" id="scoreInput" placeholder="Enter new score">
-  <button onclick="updateScore()">Update Score</button>
+<script src="/socket.io/socket.io.js"></script>
+
+<h1>Score Controller</h1>
+<input type="number" id="scoreInput" placeholder="Enter Score" />
+<button onclick="updateScore()">Update Score</button>
 
 <script>
-  const socket = io();
-  const playerID = window.location.pathname.split('/').pop();
+const socket = io();
+const playerID = window.location.pathname.split('/').pop();
+localStorage.setItem('playerID', playerID);
 
-  // Save player ID in localStorage
-  localStorage.setItem('playerID', playerID);
+function updateScore() {
+  const score = document.getElementById('scoreInput').value;
+  socket.emit('updateScore', { playerID, score: parseInt(score, 10) });
+}
 
-  function updateScore() {
-    const score = document.getElementById('scoreInput').value;
-    socket.emit('updateScore', { playerID, score: parseInt(score, 10) });
-  }
-
-  // Automatically join the player's room
-  socket.emit('joinPlayerRoom', playerID);
+socket.emit('joinPlayerRoom', playerID);
 </script>
-</body>
-</html>
