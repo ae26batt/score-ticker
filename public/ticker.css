@@ -23,6 +23,7 @@ body, html {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Remove animation from all list items normally */
 .leaderboard-list li {
   font-size: 2rem;
   margin: 15px 0;
@@ -31,5 +32,9 @@ body, html {
   justify-content: space-between;
   align-items: center;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+}
+
+/* Only new players will have this fade-in */
+.fade-in {
   animation: fadeIn 0.8s ease forwards;
 }
