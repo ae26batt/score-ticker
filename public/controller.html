@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Player Controller</title>
+</head>
+<body>
+  <h1>Player Score Controller</h1>
+  <p>Use this page to control your score.</p>
+
+  <input type="number" id="scoreInput" placeholder="Enter new score">
+  <button onclick="updateScore()">Update Score</button>
+
+  <script>
+    const playerID = window.location.pathname.split('/').pop();
+
+    function updateScore() {
+      const score = document.getElementById('scoreInput').value;
+
+      fetch(`/api/score/${playerID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: parseInt(score, 10) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Score updated!');
+        } else {
+          alert('Error updating score.');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

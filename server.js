@@ -1,75 +1,63 @@
 const express = require('express');
+const { v4: uuidv4 } = require('uuid'); // For generating random IDs
+const path = require('path');
+
 const app = express();
-const http = require('http').createServer(app);
+const port = process.env.PORT || 3000;
 
-const PORT = process.env.PORT || 3000;
+// Store player sessions
+const players = {};
 
-// In-memory player scores
-let players = {
-    "Alice": 0,
-    "Bob": 0,
-    "Charlie": 0
-};
-
-app.use(express.json());
 app.use(express.static('public'));
 
-// ➡️ New dynamic player page route (PUT THIS HERE, AFTER app is created)
-app.get('/player/:name', (req, res) => {
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Player Score Control</title>
-        <script>
-            const player = "${req.params.name}";
-            async function updateScore(delta) {
-                await fetch('/api/score', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ player, delta })
-                });
-                loadScore();
-            }
-
-            async function loadScore() {
-                const res = await fetch('/api/scores');
-                const scores = await res.json();
-                const score = scores[player];
-                document.getElementById('score').innerText = score !== undefined ? score : 'N/A';
-            }
-
-            setInterval(loadScore, 3000);
-            window.onload = loadScore;
-        </script>
-    </head>
-    <body>
-        <h1>Score Control for <span id="playerName">${req.params.name}</span></h1>
-        <h2>Score: <span id="score">0</span></h2>
-        <button onclick="updateScore(1)">➕</button>
-        <button onclick="updateScore(-1)">➖</button>
-    </body>
-    </html>
-    `);
+// Route: Home Page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ➡️ Keep your API routes after that
-app.get('/api/scores', (req, res) => {
-    res.json(players);
+// Route: Create a new controller with unique ID
+app.get('/create', (req, res) => {
+  const playerID = uuidv4(); // Generate a random unique ID
+  players[playerID] = { score: 0 }; // Initialize player state (optional)
+
+  res.redirect(`/controller/${playerID}`);
 });
 
-app.post('/api/score', (req, res) => {
-    const { player, delta } = req.body;
-    if (players[player] !== undefined) {
-        players[player] += delta;
-        res.json({ success: true, players });
-    } else {
-        res.status(404).json({ success: false, message: "Player not found" });
-    }
+// Route: Controller for a specific player
+app.get('/controller/:playerID', (req, res) => {
+  const { playerID } = req.params;
+
+  if (!players[playerID]) {
+    return res.status(404).send('Invalid or expired controller link.');
+  }
+
+  res.sendFile(path.join(__dirname, 'public', 'controller.html'));
 });
 
-// Start server
-http.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+// (Optional) Route: API to get a player's score
+app.get('/api/score/:playerID', (req, res) => {
+  const { playerID } = req.params;
+
+  if (!players[playerID]) {
+    return res.status(404).json({ error: 'Player not found' });
+  }
+
+  res.json({ score: players[playerID].score });
+});
+
+// (Optional) Route: API to update a player's score
+app.post('/api/score/:playerID', express.json(), (req, res) => {
+  const { playerID } = req.params;
+  const { score } = req.body;
+
+  if (!players[playerID]) {
+    return res.status(404).json({ error: 'Player not found' });
+  }
+
+  players[playerID].score = score;
+  res.json({ success: true });
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
