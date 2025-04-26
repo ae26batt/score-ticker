@@ -1,57 +1,48 @@
 const express = require('express');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const bodyParser = require('body-parser');
 
 const app = express();
-const players = {}; // { playerID: { name: '', score: 0 } }
+const PORT = process.env.PORT || 3000;
 
 app.use(express.static('public'));
-app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve the home page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Data storage for players
+const players = {};
+
+// Serve the controller page (optional setup)
+app.get('/controller/:id', (req, res) => {
+  res.sendFile(__dirname + '/public/controller.html');
 });
 
-// Create a new player
-app.post('/create-player', (req, res) => {
-  const playerId = uuidv4();
-  const playerName = req.body.name || 'Unnamed Player';
-  players[playerId] = { name: playerName, score: 0 };
-  res.json({ playerId });
+// ✅ THIS is the missing POST /create handler
+app.post('/create', (req, res) => {
+  const name = req.body.name;
+  const id = uuidv4();
+
+  players[id] = { name: name, score: 0 };
+  res.redirect(`/controller/${id}`);
 });
 
-// Serve the controller page
-app.get('/controller/:playerID', (req, res) => {
-  const playerID = req.params.playerID;
-  if (!players[playerID]) {
-    return res.status(404).send('Player not found.');
-  }
-  res.sendFile(path.join(__dirname, 'public', 'controller.html'));
-});
-
-// Serve the leaderboard page
-app.get('/leaderboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'ticker.html'));
-});
-
-// Serve the player scores for leaderboard
+// API to get all players (for leaderboard)
 app.get('/api/players', (req, res) => {
   res.json(players);
 });
 
-// Update a player's score
-app.post('/update-score', (req, res) => {
-  const { playerId, score } = req.body;
-  if (!players[playerId]) {
-    return res.status(404).json({ success: false, message: 'Player not found' });
+// API to update score
+app.post('/api/score/:id', (req, res) => {
+  const id = req.params.id;
+  const delta = parseInt(req.body.delta, 10);
+
+  if (players[id]) {
+    players[id].score += delta;
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
   }
-  players[playerId].score = score;
-  res.json({ success: true });
 });
 
-// Start the server
-const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
