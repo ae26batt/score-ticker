@@ -28,6 +28,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Serve leaderboard at /leaderboard
+app.get('/leaderboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/ticker.html'));
+});
+
 io.on('connection', (socket) => {
   socket.on('joinPlayerRoom', (playerID) => {
     socket.join(playerID);
