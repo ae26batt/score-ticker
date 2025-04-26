@@ -6,8 +6,7 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('/IMG_5575.jpg') no-repeat center center fixed;
-  background-size: cover;
+  background-color: black;
   color: white;
   text-align: center;
 }
