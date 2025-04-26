@@ -17,6 +17,7 @@
     let currentPlayers = {};
     let autoScrollEnabled = false;
     let scrollIntervalId;
+    const HEADER_HEIGHT = 200; // pixels
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
@@ -96,36 +97,41 @@
 
     window.addEventListener('load', () => {
       loadLeaderboard();
+      protectHeaderScroll();
     });
     setInterval(loadLeaderboard, 3000);
 
-    // ==========================
-    // AUTOSCROLL BELOW
-    // ==========================
-
+    // AUTOSCROLL FUNCTION
     function startAutoScroll() {
       autoScrollEnabled = true;
-      const scrollSpeed = 1; // pixels per frame
-      const scrollInterval = 30; // how often to scroll (lower = smoother)
-      const pauseAtEnd = 3000; // pause at bottom before reset (ms)
+      const scrollSpeed = 1; // pixel per frame
+      const scrollInterval = 30; // milliseconds between scrolls
+      const pauseAtEnd = 3000; // pause time at bottom (ms)
 
-      scrollIntervalId = setInterval(() => {
+      function scrollStep() {
         if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
           clearInterval(scrollIntervalId);
           setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'instant' });
+            window.scrollTo({ top: HEADER_HEIGHT, behavior: 'instant' });
             setTimeout(() => {
-              scrollIntervalId = setInterval(autoScrollStep, scrollInterval);
-            }, 1000); // small pause at top again
+              scrollIntervalId = setInterval(scrollStep, scrollInterval);
+            }, 1000);
           }, pauseAtEnd);
         } else {
           window.scrollBy(0, scrollSpeed);
         }
-      }, scrollInterval);
+      }
+
+      scrollIntervalId = setInterval(scrollStep, scrollInterval);
     }
 
-    function autoScrollStep() {
-      window.scrollBy(0, 1);
+    // PROTECT HEADER: Block manual scroll into header area
+    function protectHeaderScroll() {
+      window.addEventListener('scroll', () => {
+        if (window.scrollY < HEADER_HEIGHT) {
+          window.scrollTo({ top: HEADER_HEIGHT });
+        }
+      });
     }
   </script>
 </body>
