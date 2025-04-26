@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Score Viewer</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <h1>Live Score:</h1>
+  <h2 id="scoreDisplay">0</h2>
+
+  <script>
+    const socket = io();
+    const playerID = window.location.pathname.split('/').pop();
+
+    // Join the correct player room
+    socket.emit('joinPlayerRoom', playerID);
+
+    socket.on('scoreUpdated', ({ score }) => {
+      document.getElementById('scoreDisplay').innerText = score;
+    });
+  </script>
+</body>
+</html>

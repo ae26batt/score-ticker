@@ -1,8 +1,13 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid'); // For generating random IDs
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
 const port = process.env.PORT || 3000;
 
 // Store player sessions
@@ -17,47 +22,45 @@ app.get('/', (req, res) => {
 
 // Route: Create a new controller with unique ID
 app.get('/create', (req, res) => {
-  const playerID = uuidv4(); // Generate a random unique ID
-  players[playerID] = { score: 0 }; // Initialize player state (optional)
-
+  const playerID = uuidv4();
+  players[playerID] = { score: 0 };
   res.redirect(`/controller/${playerID}`);
 });
 
-// Route: Controller for a specific player
+// Route: Controller page
 app.get('/controller/:playerID', (req, res) => {
   const { playerID } = req.params;
-
   if (!players[playerID]) {
     return res.status(404).send('Invalid or expired controller link.');
   }
-
   res.sendFile(path.join(__dirname, 'public', 'controller.html'));
 });
 
-// (Optional) Route: API to get a player's score
-app.get('/api/score/:playerID', (req, res) => {
+// Route: Viewer/scoreboard page
+app.get('/view/:playerID', (req, res) => {
   const { playerID } = req.params;
-
   if (!players[playerID]) {
-    return res.status(404).json({ error: 'Player not found' });
+    return res.status(404).send('Invalid or expired viewer link.');
   }
-
-  res.json({ score: players[playerID].score });
+  res.sendFile(path.join(__dirname, 'public', 'viewer.html'));
 });
 
-// (Optional) Route: API to update a player's score
-app.post('/api/score/:playerID', express.json(), (req, res) => {
-  const { playerID } = req.params;
-  const { score } = req.body;
+// Socket.IO connection
+io.on('connection', (socket) => {
+  console.log('New WebSocket connection');
 
-  if (!players[playerID]) {
-    return res.status(404).json({ error: 'Player not found' });
-  }
+  socket.on('updateScore', ({ playerID, score }) => {
+    if (players[playerID]) {
+      players[playerID].score = score;
+      io.to(playerID).emit('scoreUpdated', { score }); // Emit only to that room
+    }
+  });
 
-  players[playerID].score = score;
-  res.json({ success: true });
+  socket.on('joinPlayerRoom', (playerID) => {
+    socket.join(playerID); // Join socket room by player ID
+  });
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
