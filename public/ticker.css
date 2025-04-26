@@ -4,7 +4,7 @@ body, html {
   width: 100%;
   height: 100%;
   font-family: 'Courier New', Courier, monospace;
-  font-weight: bold;
+  font-weight: normal;
   background: url('/IMG_5575.jpg') no-repeat center center fixed;
   background-size: cover;
   color: white;
@@ -68,10 +68,6 @@ body, html {
 /* Highlight Top Player */
 .leaderboard-list li:first-child {
   color: white;
-  font-weight: bold;
+  font-weight: normal;
   text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
-}
-
-.header-spacer {
-  height: 200px; /* adjust if needed */
 }
