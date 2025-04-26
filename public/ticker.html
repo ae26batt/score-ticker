@@ -14,63 +14,9 @@
 
   <script>
     let fullscreenButton = document.getElementById('fullscreenBtn');
-    let playersData = [];
-    let currentIndex = 0;
-    const HEADER_HEIGHT = 200;
-    const DISPLAY_COUNT = 5; // how many players show at once
-    const UPDATE_INTERVAL = 3000; // ms between changing players
-
-    async function loadPlayers() {
-      const response = await fetch('/api/players');
-      const data = await response.json();
-      playersData = Object.entries(data)
-        .sort(([, a], [, b]) => b.score - a.score)
-        .map(([id, player]) => ({ id, ...player }));
-
-      renderPlayers();
-    }
-
-    function renderPlayers() {
-      const leaderboard = document.getElementById('leaderboard');
-      leaderboard.innerHTML = '';
-
-      const totalPlayers = playersData.length;
-      if (totalPlayers === 0) return;
-
-      for (let i = 0; i < Math.min(DISPLAY_COUNT, totalPlayers); i++) {
-        const playerIndex = (currentIndex + i) % totalPlayers;
-        const player = playersData[playerIndex];
-
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <span class="player-name">${player.name}</span>
-          <span class="player-score">${player.score}</span>
-        `;
-        leaderboard.appendChild(li);
-      }
-    }
-
-    function cyclePlayers() {
-      if (playersData.length > DISPLAY_COUNT) {
-        currentIndex = (currentIndex + 1) % playersData.length;
-        renderPlayers();
-      }
-    }
-
-    async function start() {
-      await loadPlayers();
-      setInterval(cyclePlayers, UPDATE_INTERVAL);
-      setInterval(loadPlayers, 5000); // refresh player list from server every 5s
-    }
-
-    // Auto fullscreen
-    async function requestFullscreen() {
-      try {
-        await document.documentElement.requestFullscreen();
-      } catch (err) {
-        console.log('Fullscreen error:', err);
-      }
-    }
+    let currentPlayers = {};
+    let autoScrollInterval;
+    const HEADER_HEIGHT = 200; // Space in pixels for airplane embedded header
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
@@ -80,21 +26,65 @@
       }
     }
 
-    window.addEventListener('load', () => {
-      window.scrollTo({ top: HEADER_HEIGHT });
-      requestFullscreen();
-      start();
+    document.addEventListener('fullscreenchange', () => {
+      fullscreenButton.style.display = document.fullscreenElement ? 'none' : 'block';
     });
 
+    function loadLeaderboard() {
+      fetch('/api/players')
+        .then(response => response.json())
+        .then(players => {
+          updateLeaderboard(players);
+        });
+    }
+
+    function updateLeaderboard(players) {
+      const leaderboard = document.getElementById('leaderboard');
+      leaderboard.innerHTML = '';
+
+      const sortedPlayers = Object.entries(players)
+        .sort(([, a], [, b]) => b.score - a.score);
+
+      sortedPlayers.forEach(([id, player]) => {
+        const row = document.createElement('li');
+        row.innerHTML = `
+          <span class="player-name">${player.name}</span>
+          <span class="player-score">${player.score}</span>
+        `;
+        leaderboard.appendChild(row);
+      });
+
+      if (sortedPlayers.length >= 5) {
+        startAutoScroll();
+      }
+    }
+
+    function startAutoScroll() {
+      clearInterval(autoScrollInterval); // Avoid duplicates
+      autoScrollInterval = setInterval(() => {
+        if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+          setTimeout(() => {
+            window.scrollTo({ top: HEADER_HEIGHT, behavior: 'instant' });
+          }, 3000); // Pause for 3 seconds at bottom
+        } else {
+          window.scrollBy(0, 1);
+        }
+      }, 30); // Very smooth small step scrolling
+    }
+
+    // Scroll protection: never allow scrollY < HEADER_HEIGHT
     window.addEventListener('scroll', () => {
       if (window.scrollY < HEADER_HEIGHT) {
         window.scrollTo({ top: HEADER_HEIGHT });
       }
     });
 
-    document.addEventListener('fullscreenchange', () => {
-      fullscreenButton.style.display = document.fullscreenElement ? 'none' : 'block';
+    window.addEventListener('load', () => {
+      window.scrollTo({ top: HEADER_HEIGHT }); // Always start below header
+      loadLeaderboard();
     });
+
+    setInterval(loadLeaderboard, 3000); // Refresh players every 3 sec
   </script>
 </body>
 </html>

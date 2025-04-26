@@ -9,50 +9,69 @@ body, html {
   background-size: cover;
   color: white;
   overflow-x: hidden;
-  overflow-y: hidden; /* Disable scrollbars */
-}
-
-.header-spacer {
-  height: 200px; /* Protect your airplane embedded header */
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .leaderboard-list {
   list-style: none;
-  margin: 0 auto;
   padding: 0;
-  width: 80%;
-  max-width: 1200px;
-  text-align: left;
+  margin: 0 auto;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
 .leaderboard-list li {
-  font-size: 8rem; /* 💥 5x bigger!! */
-  margin: 30px 0;
-  padding: 10px 20px;
+  font-size: 5rem;
+  margin: 20px 0;
+  padding: 10px 30px;
   display: flex;
-  justify-content: space-between; /* Name on left, Score on right */
+  justify-content: space-between;
   align-items: center;
-  text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
 }
 
-/* Make names and scores split cleanly */
-.player-name {
-  flex: 1;
-  text-align: left;
-}
-
-.player-score {
-  flex: 0;
-  text-align: right;
-  margin-left: 20px;
-}
-
-/* Fade-in animation ONLY when new list item added */
+/* Fade-in animation */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in {
-  animation: fadeIn 1s ease forwards;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+/* Fullscreen Button */
+.fullscreen-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 1.2rem;
+  background: none; /* No background */
+  border: 2px solid white;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+
+.fullscreen-button:hover {
+  background: rgba(255, 255, 255, 0.1); /* Tiny hover effect */
+}
+
+.fullscreen-button:hover {
+  background-color: rgba(255,255,255,0.3);
+}
+
+/* Highlight Top Player */
+.leaderboard-list li:first-child {
+  color: white;
+  font-weight: bold;
+  text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
+}
+
+.header-spacer {
+  height: 200px; /* adjust if needed */
 }
