@@ -23,7 +23,7 @@
       leaderboard.innerHTML = '';
 
       const sortedPlayers = Object.entries(players)
-        .sort(([, a], [, b]) => b.score - a.score); // Sort by highest score
+        .sort(([, a], [, b]) => b.score - a.score); // Highest score first
 
       sortedPlayers.forEach(([id, player]) => {
         const row = document.createElement('li');

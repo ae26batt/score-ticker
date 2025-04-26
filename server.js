@@ -3,7 +3,7 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const players = {}; // Store players: { playerID: { name: 'Name', score: 0 } }
+const players = {}; // { playerID: { name: '', score: 0 } }
 
 app.use(express.static('public'));
 app.use(express.json());
@@ -35,7 +35,7 @@ app.get('/leaderboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'ticker.html'));
 });
 
-// Serve the players and scores (for the leaderboard)
+// Serve the player scores for leaderboard
 app.get('/api/players', (req, res) => {
   res.json(players);
 });

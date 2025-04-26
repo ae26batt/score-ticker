@@ -1,18 +1,41 @@
-<script src="/socket.io/socket.io.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Score Controller</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ticker.css">
+</head>
+<body>
+  <div class="controller-container">
+    <h1>Update Your Score</h1>
+    <input type="number" id="scoreInput" placeholder="Enter your score">
+    <button onclick="updateScore()">Update Score</button>
+  </div>
 
-<h1>Score Controller</h1>
-<input type="number" id="scoreInput" placeholder="Enter Score" />
-<button onclick="updateScore()">Update Score</button>
+  <script>
+    const playerID = window.location.pathname.split('/').pop();
 
-<script>
-const socket = io();
-const playerID = window.location.pathname.split('/').pop();
-localStorage.setItem('playerID', playerID);
-
-function updateScore() {
-  const score = document.getElementById('scoreInput').value;
-  socket.emit('updateScore', { playerID, score: parseInt(score, 10) });
-}
-
-socket.emit('joinPlayerRoom', playerID);
-</script>
+    function updateScore() {
+      const score = document.getElementById('scoreInput').value.trim();
+      if (!score) {
+        alert('Please enter a score.');
+        return;
+      }
+      fetch('/update-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId: playerID, score: parseInt(score, 10) })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Score updated successfully!');
+        } else {
+          alert('Failed to update score.');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
