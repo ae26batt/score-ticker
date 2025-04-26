@@ -1,52 +1,47 @@
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const { v4: uuidv4 } = require('uuid');
-const path = require('path');
-
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
-const players = {}; // { playerID: { name: '', score: 0 } }
+const players = {}; // { playerId: { name: '...', score: 0 } }
 
 app.use(express.static('public'));
-app.use(express.json()); // Needed to parse JSON in POST requests
+app.use(express.json());
 
-app.post('/create', (req, res) => {
-  const { name } = req.body;
-  const playerID = uuidv4();
-  players[playerID] = { name, score: 0 };
-  res.json({ playerID });
-});
-
-app.get('/controller/:playerID', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'controller.html'));
-});
-
+// Serve the main controller page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Serve leaderboard at /leaderboard
+// API to create a new player ID
+app.post('/create-player', (req, res) => {
+  const playerId = uuidv4();
+  players[playerId] = { name: req.body.name || 'Unnamed Player', score: 0 };
+  res.json({ playerId });
+});
+
+// API to update a player's score
+app.post('/update-score', (req, res) => {
+  const { playerId, score } = req.body;
+  if (players[playerId]) {
+    players[playerId].score = score;
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ success: false, message: 'Player not found' });
+  }
+});
+
+// API to serve all players and scores
+app.get('/api/players', (req, res) => {
+  res.json(players);
+});
+
+// Serve the leaderboard page
 app.get('/leaderboard', (req, res) => {
-  res.sendFile(path.join(__dirname, '/public/ticker.html'));
+  res.sendFile(path.join(__dirname, 'public', 'ticker.html'));
 });
 
-io.on('connection', (socket) => {
-  socket.on('joinPlayerRoom', (playerID) => {
-    socket.join(playerID);
-  });
-
-  socket.on('updateScore', ({ playerID, score }) => {
-    if (players[playerID]) {
-      players[playerID].score = score;
-      io.emit('updateLeaderboard', players);
-    }
-  });
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

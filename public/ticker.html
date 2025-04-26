@@ -1,21 +1,33 @@
-<script src="/socket.io/socket.io.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Score Ticker Leaderboard</title>
+</head>
+<body>
+  <h1>Leaderboard</h1>
+  <ul id="leaderboard"></ul>
 
-<h1>Live Leaderboard</h1>
-<ul id="leaderboard"></ul>
+  <script>
+    function loadLeaderboard() {
+      fetch('/api/players')
+        .then(response => response.json())
+        .then(data => {
+          updateLeaderboard(data);
+        });
+    }
 
-<script>
-const socket = io();
+    function updateLeaderboard(playersData) {
+      const leaderboard = document.getElementById('leaderboard');
+      leaderboard.innerHTML = '';
+      for (const [playerId, info] of Object.entries(playersData)) {
+        const li = document.createElement('li');
+        li.textContent = `${info.name}: ${info.score}`;
+        leaderboard.appendChild(li);
+      }
+    }
 
-socket.on('updateLeaderboard', (players) => {
-  const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = '';
-
-  const sortedPlayers = Object.values(players).sort((a, b) => b.score - a.score);
-
-  sortedPlayers.forEach(({ name, score }) => {
-    const li = document.createElement('li');
-    li.textContent = `${name}: ${score}`;
-    leaderboard.appendChild(li);
-  });
-});
-</script>
+    window.addEventListener('load', loadLeaderboard);
+  </script>
+</body>
+</html>
