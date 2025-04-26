@@ -10,6 +10,7 @@
   <div class="controller-container">
     <h1 id="player-name">Player Name</h1>
     <div id="player-score" class="player-score">Score: 0</div>
+    <div id="player-rank" class="player-rank">Place: </div> <!-- 🆕 This line -->
 
     <div class="buttons">
       <button id="plus-btn" class="plus-button">+</button>
@@ -24,11 +25,28 @@
     async function fetchPlayerData() {
       const res = await fetch('/api/players');
       const players = await res.json();
-      if (players[playerId]) {
-        document.getElementById('player-name').textContent = players[playerId].name;
-        document.getElementById('player-score').textContent = "Score: " + players[playerId].score;
-        updateMinusButton(players[playerId].score);
+
+      const sortedPlayers = Object.entries(players)
+        .sort(([, a], [, b]) => b.score - a.score);
+
+      const index = sortedPlayers.findIndex(([id]) => id === playerId);
+
+      if (sortedPlayers.length > 0 && index !== -1) {
+        const player = sortedPlayers[index][1];
+
+        document.getElementById('player-name').textContent = player.name;
+        document.getElementById('player-score').textContent = "Score: " + player.score;
+        document.getElementById('player-rank').textContent = "Place: " + formatPlace(index + 1);
+
+        updateMinusButton(player.score);
       }
+    }
+
+    function formatPlace(place) {
+      if (place === 1) return "1st";
+      if (place === 2) return "2nd";
+      if (place === 3) return "3rd";
+      return place + "th";
     }
 
     async function updateScore(delta) {
@@ -45,6 +63,13 @@
       minusBtn.disabled = (score <= 0);
     }
 
+    function animateButton(button) {
+      button.classList.add('bounce');
+      setTimeout(() => {
+        button.classList.remove('bounce');
+      }, 300);
+    }
+
     document.getElementById('plus-btn').addEventListener('click', () => {
       animateButton(document.getElementById('plus-btn'));
       updateScore(1);
@@ -52,15 +77,8 @@
 
     document.getElementById('minus-btn').addEventListener('click', () => updateScore(-1));
 
-    function animateButton(button) {
-      button.classList.add('bounce');
-      setTimeout(() => {
-        button.classList.remove('bounce');
-      }, 300); // bounce animation duration
-    }
-
     window.addEventListener('load', fetchPlayerData);
-    setInterval(fetchPlayerData, 3000); // refresh every 3s
+    setInterval(fetchPlayerData, 3000);
   </script>
 </body>
 </html>
