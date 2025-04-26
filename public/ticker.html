@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>Leaderboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet"> <!-- You can remove if only Courier New is used -->
   <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
   <button id="fullscreenBtn" class="fullscreen-button" onclick="toggleFullscreen()">Fullscreen</button>
 
-  <div class="header-spacer"></div> <!-- Spacer to avoid overlapping background header -->
+  <div class="header-spacer"></div>
 
   <ul id="leaderboard" class="leaderboard-list"></ul>
 
   <script>
     let fullscreenButton = document.getElementById('fullscreenBtn');
-    let currentPlayers = {}; 
+    let currentPlayers = {};
+    let autoScrollEnabled = false;
+    let scrollIntervalId;
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
@@ -25,7 +26,6 @@
       }
     }
 
-    // Hide fullscreen button while in fullscreen
     document.addEventListener('fullscreenchange', () => {
       if (document.fullscreenElement) {
         fullscreenButton.style.display = 'none';
@@ -47,7 +47,7 @@
       leaderboard.innerHTML = '';
 
       const sortedPlayers = Object.entries(players)
-        .sort(([, a], [, b]) => b.score - a.score); // Sort highest score first
+        .sort(([, a], [, b]) => b.score - a.score);
 
       const topPlayerID = sortedPlayers.length > 0 ? sortedPlayers[0][0] : null;
 
@@ -65,18 +65,20 @@
 
         leaderboard.appendChild(row);
 
-        // Animate the score counting up
         animateScore(`score-${id}`, currentPlayers[id]?.score || 0, player.score);
       });
 
-      // Update current players memory
       currentPlayers = { ...players };
+
+      if (sortedPlayers.length >= 5 && !autoScrollEnabled) {
+        startAutoScroll();
+      }
     }
 
     function animateScore(elementId, start, end) {
       const element = document.getElementById(elementId);
-      const duration = 800; // milliseconds
-      const frameRate = 60; // frames per second
+      const duration = 800;
+      const frameRate = 60;
       const totalFrames = Math.round(duration / (1000 / frameRate));
       let frame = 0;
 
@@ -92,8 +94,39 @@
       }, 1000 / frameRate);
     }
 
-    window.addEventListener('load', loadLeaderboard);
-    setInterval(loadLeaderboard, 3000); // Refresh leaderboard every 3 seconds
+    window.addEventListener('load', () => {
+      loadLeaderboard();
+    });
+    setInterval(loadLeaderboard, 3000);
+
+    // ==========================
+    // AUTOSCROLL BELOW
+    // ==========================
+
+    function startAutoScroll() {
+      autoScrollEnabled = true;
+      const scrollSpeed = 1; // pixels per frame
+      const scrollInterval = 30; // how often to scroll (lower = smoother)
+      const pauseAtEnd = 3000; // pause at bottom before reset (ms)
+
+      scrollIntervalId = setInterval(() => {
+        if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+          clearInterval(scrollIntervalId);
+          setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            setTimeout(() => {
+              scrollIntervalId = setInterval(autoScrollStep, scrollInterval);
+            }, 1000); // small pause at top again
+          }, pauseAtEnd);
+        } else {
+          window.scrollBy(0, scrollSpeed);
+        }
+      }, scrollInterval);
+    }
+
+    function autoScrollStep() {
+      window.scrollBy(0, 1);
+    }
   </script>
 </body>
 </html>
