@@ -7,9 +7,20 @@
   <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
+  <button id="fullscreenBtn" class="fullscreen-button" onclick="toggleFullscreen()">Fullscreen</button>  
   <ul id="leaderboard" class="leaderboard-list"></ul>
 
   <script>
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
     function loadLeaderboard() {
       fetch('/api/players')
         .then(response => response.json())
