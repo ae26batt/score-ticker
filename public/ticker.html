@@ -1,45 +1,61 @@
-<script>
-  async function loadLeaderboard() {
-    const response = await fetch('/api/players');
-    const playersData = await response.json();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leaderboard</title>
+  <link rel="stylesheet" href="/ticker.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div class="header-spacer"></div>
 
-    const leaderboard = document.getElementById('leaderboard');
-    leaderboard.innerHTML = '';
+  <ul id="leaderboard" class="leaderboard-list"></ul>
 
-    const sortedPlayers = Object.entries(playersData)
-      .sort(([, a], [, b]) => b.score - a.score)
-      .map(([id, player]) => ({ id, ...player }));
+  <script>
+    async function loadLeaderboard() {
+      const response = await fetch('/api/players');
+      const playersData = await response.json();
 
-    // 🍼 Inject Zaida permanently into 4th place
-    const zaida = { id: "zaida-fixed", name: "Zaida", score: 0 };
+      const leaderboard = document.getElementById('leaderboard');
+      leaderboard.innerHTML = '';
 
-    if (sortedPlayers.length >= 3) {
-      sortedPlayers.splice(3, 0, zaida); // Insert Zaida at 4th index
-    } else {
-      sortedPlayers.push(zaida); // If fewer players, just add her at end
-    }
+      const sortedPlayers = Object.entries(playersData)
+        .sort(([, a], [, b]) => b.score - a.score)
+        .map(([id, player]) => ({ id, ...player }));
 
-    sortedPlayers.forEach((player, index) => {
-      const li = document.createElement('li');
+      // 🍼 Correctly create Zaida object
+      const zaida = { id: "zaida-fixed", name: "Zaida", score: "baby" };
 
-      if (player.name === "Zaida") {
-        li.innerHTML = `
-          <span class="player-name">${player.name}</span>
-          <span class="player-score">🍼</span> <!-- Baby icon instead of number -->
-        `;
+      // Insert Zaida into 4th place if 3+ players exist
+      if (sortedPlayers.length >= 3) {
+        sortedPlayers.splice(3, 0, zaida);
       } else {
-        li.innerHTML = `
-          <span class="player-name">${index === 0 ? '🥇 ' : ''}${player.name}</span>
-          <span class="player-score">${player.score}</span>
-        `;
+        sortedPlayers.push(zaida);
       }
 
-      leaderboard.appendChild(li);
-    });
-  }
+      sortedPlayers.forEach((player, index) => {
+        const li = document.createElement('li');
 
-  window.addEventListener('load', () => {
-    loadLeaderboard();
-    setInterval(loadLeaderboard, 3000); // Refresh every 3 seconds
-  });
-</script>
+        if (player.name === "Zaida") {
+          li.innerHTML = `
+            <span class="player-name">${player.name}</span>
+            <span class="player-score">🍼</span>
+          `;
+        } else {
+          li.innerHTML = `
+            <span class="player-name">${index === 0 ? '🥇 ' : ''}${player.name}</span>
+            <span class="player-score">${player.score}</span>
+          `;
+        }
+
+        leaderboard.appendChild(li);
+      });
+    }
+
+    window.addEventListener('load', () => {
+      loadLeaderboard();
+      setInterval(loadLeaderboard, 3000);
+    });
+  </script>
+</body>
+</html>
