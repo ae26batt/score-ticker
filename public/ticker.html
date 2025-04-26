@@ -2,32 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Score Ticker Leaderboard</title>
+  <title>Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
-  <h1>Leaderboard</h1>
-  <ul id="leaderboard"></ul>
+  <div class="leaderboard-container">
+    <div class="header">
+      <div>PLAYERS</div>
+      <div># OF BEERS</div>
+    </div>
+    <ul id="leaderboard"></ul>
+  </div>
 
   <script>
     function loadLeaderboard() {
       fetch('/api/players')
         .then(response => response.json())
-        .then(data => {
-          updateLeaderboard(data);
+        .then(players => {
+          updateLeaderboard(players);
         });
     }
 
-    function updateLeaderboard(playersData) {
+    function updateLeaderboard(players) {
       const leaderboard = document.getElementById('leaderboard');
       leaderboard.innerHTML = '';
-      for (const [playerId, info] of Object.entries(playersData)) {
-        const li = document.createElement('li');
-        li.textContent = `${info.name}: ${info.score}`;
-        leaderboard.appendChild(li);
-      }
+
+      const sortedPlayers = Object.entries(players)
+        .sort(([, a], [, b]) => b.score - a.score); // Highest score first
+
+      sortedPlayers.forEach(([id, player]) => {
+        const row = document.createElement('li');
+        row.innerHTML = `
+          <span class="player-name">${player.name}</span>
+          <span class="player-score">${player.score}</span>
+        `;
+        leaderboard.appendChild(row);
+      });
     }
 
     window.addEventListener('load', loadLeaderboard);
+    setInterval(loadLeaderboard, 3000); // Refresh every 3 seconds
   </script>
 </body>
 </html>
