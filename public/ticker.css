@@ -22,7 +22,7 @@ body, html {
 }
 
 .leaderboard-list li {
-  font-size: 5rem;
+  font-size: 3rem;
   margin: 20px 0;
   padding: 10px 30px;
   display: flex;
