@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Score Control</title>
+    <script>
+        async function updateScore(player, delta) {
+            await fetch('/api/score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ player, delta })
+            });
+            loadScores();
+        }
+
+        async function loadScores() {
+            const res = await fetch('/api/scores');
+            const scores = await res.json();
+            const table = document.getElementById('scoreTable');
+            table.innerHTML = '';
+            for (const [player, score] of Object.entries(scores)) {
+                const row = `<tr>
+                    <td>${player}</td>
+                    <td>${score}</td>
+                    <td>
+                        <button onclick="updateScore('${player}', 1)">➕</button>
+                        <button onclick="updateScore('${player}', -1)">➖</button>
+                    </td>
+                </tr>`;
+                table.innerHTML += row;
+            }
+        }
+
+        setInterval(loadScores, 3000); // Refresh every 3 seconds
+        window.onload = loadScores;
+    </script>
+</head>
+<body>
+    <h1>Score Controller</h1>
+    <table border="1">
+        <thead>
+            <tr><th>Player</th><th>Score</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="scoreTable"></tbody>
+    </table>
+</body>
+</html>
+

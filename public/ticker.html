@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Ticker</title>
+    <script>
+        async function loadScores() {
+            const res = await fetch('/api/scores');
+            const scores = await res.json();
+            const list = document.getElementById('liveScores');
+            list.innerHTML = '';
+            for (const [player, score] of Object.entries(scores)) {
+                const item = `<div>${player}: ${score}</div>`;
+                list.innerHTML += item;
+            }
+        }
+
+        setInterval(loadScores, 1000); // Refresh every second
+        window.onload = loadScores;
+    </script>
+    <style>
+        body { font-size: 2em; font-family: Arial, sans-serif; text-align: center; }
+        #liveScores { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🏆 Live Scores</h1>
+    <div id="liveScores"></div>
+</body>
+</html>
