@@ -11,17 +11,17 @@ async function createPlayer() {
     return;
   }
 
-  const response = await fetch('/create', {
+  const response = await fetch('/create-player', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name }),
   });
 
-  const { playerID } = await response.json();
+  const { playerId } = await response.json();
   
   // Save playerID locally
-  localStorage.setItem('playerID', playerID);
+  localStorage.setItem('playerID', playerId);
 
-  window.location.href = `/controller/${playerID}`;
+  window.location.href = `/controller/${playerId}`;
 }
 </script>

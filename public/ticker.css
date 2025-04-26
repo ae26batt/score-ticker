@@ -46,3 +46,7 @@ body, html {
 .player-name, .player-score {
   flex: 1;
 }
+
+.leaderboard-list {
+  margin-top: 150px; /* or 200px depending on your background layout */
+}

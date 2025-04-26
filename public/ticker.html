@@ -7,13 +7,7 @@
   <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
-  <div class="leaderboard-container">
-    <div class="header">
-      <div>PLAYERS</div>
-      <div># OF BEERS</div>
-    </div>
-    <ul id="leaderboard"></ul>
-  </div>
+  <ul id="leaderboard" class="leaderboard-list"></ul>
 
   <script>
     function loadLeaderboard() {
@@ -29,7 +23,7 @@
       leaderboard.innerHTML = '';
 
       const sortedPlayers = Object.entries(players)
-        .sort(([, a], [, b]) => b.score - a.score); // Highest score first
+        .sort(([, a], [, b]) => b.score - a.score); // Sort by highest score
 
       sortedPlayers.forEach(([id, player]) => {
         const row = document.createElement('li');
