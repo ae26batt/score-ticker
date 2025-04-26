@@ -7,50 +7,80 @@
   <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
-  <button id="fullscreenBtn" class="fullscreen-button" onclick="toggleFullscreen()">Fullscreen</button>  
+  <button id="fullscreenBtn" class="fullscreen-button" onclick="toggleFullscreen()">Fullscreen</button>
+
   <ul id="leaderboard" class="leaderboard-list"></ul>
 
-<script>
-let currentPlayers = {};
+  <script>
+    let currentPlayers = {};
 
-function loadLeaderboard() {
-  fetch('/api/players')
-    .then(response => response.json())
-    .then(players => {
-      updateLeaderboard(players);
-    });
-}
-
-function updateLeaderboard(players) {
-  const leaderboard = document.getElementById('leaderboard');
-  leaderboard.innerHTML = '';
-
-  const sortedPlayers = Object.entries(players)
-    .sort(([, a], [, b]) => b.score - a.score); // Highest score first
-
-  sortedPlayers.forEach(([id, player]) => {
-    const row = document.createElement('li');
-
-    // Check if player already existed
-    if (!currentPlayers[id]) {
-      // New player, apply animation
-      row.classList.add('fade-in');
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
     }
 
-    row.innerHTML = `
-      <span class="player-name">${player.name}</span>
-      <span class="player-score">${player.score}</span>
-    `;
-    leaderboard.appendChild(row);
-  });
+    function loadLeaderboard() {
+      fetch('/api/players')
+        .then(response => response.json())
+        .then(players => {
+          updateLeaderboard(players);
+        });
+    }
 
-  // Update the known current players
-  currentPlayers = { ...players };
-}
+    function updateLeaderboard(players) {
+      const leaderboard = document.getElementById('leaderboard');
+      leaderboard.innerHTML = '';
 
-window.addEventListener('load', loadLeaderboard);
-setInterval(loadLeaderboard, 3000); // Refresh every 3 seconds
-</script>
+      const sortedPlayers = Object.entries(players)
+        .sort(([, a], [, b]) => b.score - a.score); // Highest score first
 
+      const topPlayerID = sortedPlayers.length > 0 ? sortedPlayers[0][0] : null;
+
+      sortedPlayers.forEach(([id, player]) => {
+        const row = document.createElement('li');
+
+        if (!currentPlayers[id]) {
+          row.classList.add('fade-in');
+        }
+
+        row.innerHTML = `
+          <span class="player-name">${id === topPlayerID ? "🥇 " : ""}${player.name}</span>
+          <span class="player-score" id="score-${id}">0</span>
+        `;
+
+        leaderboard.appendChild(row);
+
+        // Animate score
+        animateScore(`score-${id}`, currentPlayers[id]?.score || 0, player.score);
+      });
+
+      currentPlayers = { ...players };
+    }
+
+    function animateScore(elementId, start, end) {
+      const element = document.getElementById(elementId);
+      const duration = 800; // milliseconds
+      const frameRate = 60; // frames per second
+      const totalFrames = Math.round(duration / (1000 / frameRate));
+      let frame = 0;
+
+      const counter = setInterval(() => {
+        frame++;
+        const progress = frame / totalFrames;
+        const currentScore = Math.round(start + (end - start) * progress);
+        element.innerText = currentScore;
+
+        if (frame === totalFrames) {
+          clearInterval(counter);
+        }
+      }, 1000 / frameRate);
+    }
+
+    window.addEventListener('load', loadLeaderboard);
+    setInterval(loadLeaderboard, 3000); // Refresh every 3 seconds
+  </script>
 </body>
 </html>

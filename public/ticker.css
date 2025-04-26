@@ -8,25 +8,21 @@ body, html {
   background-size: cover;
   color: white;
   overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .leaderboard-list {
-  margin-top: 150px; /* Adjust to avoid covering PLAYERS/# OF BEERS text */
+  margin-top: 150px;
   list-style: none;
   padding: 0;
   margin-left: 10%;
   margin-right: 10%;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Remove animation from all list items normally */
 .leaderboard-list li {
   font-size: 2rem;
-  margin: 15px 0;
+  margin: 20px 0;
   padding: 10px 30px;
   display: flex;
   justify-content: space-between;
@@ -34,7 +30,38 @@ body, html {
   text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
 }
 
-/* Only new players will have this fade-in */
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .fade-in {
   animation: fadeIn 0.8s ease forwards;
+}
+
+/* Fullscreen Button */
+.fullscreen-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 1.2rem;
+  background-color: rgba(0,0,0,0.5);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+.fullscreen-button:hover {
+  background-color: rgba(255,255,255,0.3);
+}
+
+/* Highlight Top Player */
+.leaderboard-list li:first-child {
+  color: gold;
+  font-weight: bold;
+  text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
 }
