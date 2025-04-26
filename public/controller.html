@@ -10,17 +10,20 @@
   <input type="number" id="scoreInput" placeholder="Enter new score">
   <button onclick="updateScore()">Update Score</button>
 
-  <script>
-    const socket = io();
-    const playerID = window.location.pathname.split('/').pop();
+<script>
+  const socket = io();
+  const playerID = window.location.pathname.split('/').pop();
 
-    function updateScore() {
-      const score = document.getElementById('scoreInput').value;
-      socket.emit('updateScore', { playerID, score: parseInt(score, 10) });
-    }
+  // Save player ID in localStorage
+  localStorage.setItem('playerID', playerID);
 
-    // Automatically join the player's room
-    socket.emit('joinPlayerRoom', playerID);
-  </script>
+  function updateScore() {
+    const score = document.getElementById('scoreInput').value;
+    socket.emit('updateScore', { playerID, score: parseInt(score, 10) });
+  }
+
+  // Automatically join the player's room
+  socket.emit('joinPlayerRoom', playerID);
+</script>
 </body>
 </html>

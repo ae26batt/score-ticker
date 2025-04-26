@@ -8,10 +8,14 @@
   <h1>Welcome to Score Ticker</h1>
   <button onclick="createPlayer()">Create My Score Controller</button>
 
-  <script>
-    function createPlayer() {
-      window.location.href = '/create';
-    }
-  </script>
+ <script>
+  const playerID = localStorage.getItem('playerID');
+  if (playerID) {
+    window.location.href = `/controller/${playerID}`;
+  }
+</script>
+
+<h1>Welcome to Score Ticker!</h1>
+<a href="/create">Create New Controller</a>
 </body>
 </html>
