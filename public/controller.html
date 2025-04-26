@@ -27,6 +27,7 @@
       if (players[playerId]) {
         document.getElementById('player-name').textContent = players[playerId].name;
         document.getElementById('player-score').textContent = "Score: " + players[playerId].score;
+        updateMinusButton(players[playerId].score);
       }
     }
 
@@ -36,14 +37,30 @@
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `delta=${delta}`
       });
-      await fetchPlayerData(); // Refresh the displayed score
+      await fetchPlayerData();
     }
 
-    document.getElementById('plus-btn').addEventListener('click', () => updateScore(1));
+    function updateMinusButton(score) {
+      const minusBtn = document.getElementById('minus-btn');
+      minusBtn.disabled = (score <= 0);
+    }
+
+    document.getElementById('plus-btn').addEventListener('click', () => {
+      animateButton(document.getElementById('plus-btn'));
+      updateScore(1);
+    });
+
     document.getElementById('minus-btn').addEventListener('click', () => updateScore(-1));
 
+    function animateButton(button) {
+      button.classList.add('bounce');
+      setTimeout(() => {
+        button.classList.remove('bounce');
+      }, 300); // bounce animation duration
+    }
+
     window.addEventListener('load', fetchPlayerData);
-    setInterval(fetchPlayerData, 3000); // Refresh score every 3s in case others update too
+    setInterval(fetchPlayerData, 3000); // refresh every 3s
   </script>
 </body>
 </html>

@@ -35,15 +35,19 @@ body, html {
 }
 
 .plus-button {
-  width: 120px;
-  height: 120px;
-  font-size: 4rem;
+  width: 140px;
+  height: 140px;
+  font-size: 5rem; /* Bigger plus sign */
+  font-weight: bold;
   border-radius: 50%;
   background-color: gold;
   border: none;
   color: black;
   margin-bottom: 20px;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .plus-button:hover {
@@ -54,13 +58,29 @@ body, html {
   width: 80px;
   height: 80px;
   font-size: 2rem;
+  font-weight: bold;
   border-radius: 50%;
   background-color: gray;
   border: none;
   color: white;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.minus-button:hover {
+.minus-button:disabled {
   background-color: darkgray;
+  cursor: not-allowed;
+}
+
+/* Bounce animation for the plus button */
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.bounce {
+  animation: bounce 0.3s;
 }
