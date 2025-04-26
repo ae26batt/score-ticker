@@ -20,7 +20,12 @@ body, html {
 
 #player-name {
   font-size: 3rem;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+}
+
+.player-score {
+  font-size: 2rem;
+  margin-bottom: 40px;
 }
 
 .buttons {
@@ -30,13 +35,14 @@ body, html {
 }
 
 .plus-button {
-  font-size: 6rem;
-  padding: 20px 40px;
-  margin-bottom: 20px;
+  width: 120px;
+  height: 120px;
+  font-size: 4rem;
+  border-radius: 50%;
   background-color: gold;
   border: none;
-  border-radius: 15px;
   color: black;
+  margin-bottom: 20px;
   cursor: pointer;
 }
 
@@ -45,11 +51,12 @@ body, html {
 }
 
 .minus-button {
+  width: 80px;
+  height: 80px;
   font-size: 2rem;
-  padding: 10px 20px;
+  border-radius: 50%;
   background-color: gray;
   border: none;
-  border-radius: 10px;
   color: white;
   cursor: pointer;
 }

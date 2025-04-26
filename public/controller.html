@@ -9,6 +9,7 @@
 <body>
   <div class="controller-container">
     <h1 id="player-name">Player Name</h1>
+    <div id="player-score" class="player-score">Score: 0</div>
 
     <div class="buttons">
       <button id="plus-btn" class="plus-button">+</button>
@@ -20,28 +21,29 @@
     const urlParts = window.location.pathname.split('/');
     const playerId = urlParts[urlParts.length - 1];
 
-    // Fetch player name
-    async function fetchPlayerName() {
+    async function fetchPlayerData() {
       const res = await fetch('/api/players');
       const players = await res.json();
       if (players[playerId]) {
         document.getElementById('player-name').textContent = players[playerId].name;
+        document.getElementById('player-score').textContent = "Score: " + players[playerId].score;
       }
     }
 
-    fetchPlayerName();
-
-    // Update score
     async function updateScore(delta) {
       await fetch(`/api/score/${playerId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `delta=${delta}`
       });
+      await fetchPlayerData(); // Refresh the displayed score
     }
 
     document.getElementById('plus-btn').addEventListener('click', () => updateScore(1));
     document.getElementById('minus-btn').addEventListener('click', () => updateScore(-1));
+
+    window.addEventListener('load', fetchPlayerData);
+    setInterval(fetchPlayerData, 3000); // Refresh score every 3s in case others update too
   </script>
 </body>
 </html>
