@@ -9,69 +9,36 @@ body, html {
   background-size: cover;
   color: white;
   overflow-x: hidden;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  overflow-y: hidden; /* 💥 Important: disable scrollbars */
+}
+
+.header-spacer {
+  height: 200px;
 }
 
 .leaderboard-list {
   list-style: none;
+  margin: 0;
   padding: 0;
-  margin: 0 auto;
-  margin-left: 10%;
-  margin-right: 10%;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .leaderboard-list li {
-  font-size: 5rem;
+  font-size: 2rem;
   margin: 20px 0;
   padding: 10px 30px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  flex-direction: column;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+  opacity: 0;
+  animation: fadeIn 1s forwards;
 }
 
-/* Fade-in animation */
+/* Fade in effect */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in {
-  animation: fadeIn 0.8s ease forwards;
-}
-
-/* Fullscreen Button */
-.fullscreen-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  font-size: 1.2rem;
-  background: none; /* No background */
-  border: 2px solid white;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  z-index: 1000;
-  transition: opacity 0.3s ease;
-}
-
-.fullscreen-button:hover {
-  background: rgba(255, 255, 255, 0.1); /* Tiny hover effect */
-}
-
-.fullscreen-button:hover {
-  background-color: rgba(255,255,255,0.3);
-}
-
-/* Highlight Top Player */
-.leaderboard-list li:first-child {
-  color: white;
-  font-weight: bold;
-  text-shadow: 3px 3px 8px rgba(0,0,0,0.8);
-}
-
-.header-spacer {
-  height: 200px; /* adjust if needed */
 }
