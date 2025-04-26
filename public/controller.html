@@ -2,40 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Score Controller</title>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/ticker.css">
+  <title>Player Controller</title>
+  <link rel="stylesheet" href="/controller.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
   <div class="controller-container">
-    <h1>Update Your Score</h1>
-    <input type="number" id="scoreInput" placeholder="Enter your score">
-    <button onclick="updateScore()">Update Score</button>
+    <h1 id="player-name">Player Name</h1>
+
+    <div class="buttons">
+      <button id="plus-btn" class="plus-button">+</button>
+      <button id="minus-btn" class="minus-button">-</button>
+    </div>
   </div>
 
   <script>
-    const playerID = window.location.pathname.split('/').pop();
+    const urlParts = window.location.pathname.split('/');
+    const playerId = urlParts[urlParts.length - 1];
 
-    function updateScore() {
-      const score = document.getElementById('scoreInput').value.trim();
-      if (!score) {
-        alert('Please enter a score.');
-        return;
+    // Fetch player name
+    async function fetchPlayerName() {
+      const res = await fetch('/api/players');
+      const players = await res.json();
+      if (players[playerId]) {
+        document.getElementById('player-name').textContent = players[playerId].name;
       }
-      fetch('/update-score', {
+    }
+
+    fetchPlayerName();
+
+    // Update score
+    async function updateScore(delta) {
+      await fetch(`/api/score/${playerId}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId: playerID, score: parseInt(score, 10) })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Score updated successfully!');
-        } else {
-          alert('Failed to update score.');
-        }
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `delta=${delta}`
       });
     }
+
+    document.getElementById('plus-btn').addEventListener('click', () => updateScore(1));
+    document.getElementById('minus-btn').addEventListener('click', () => updateScore(-1));
   </script>
 </body>
 </html>
