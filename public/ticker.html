@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Leaderboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet"> <!-- You can remove if only Courier New is used -->
   <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
   <button id="fullscreenBtn" class="fullscreen-button" onclick="toggleFullscreen()">Fullscreen</button>
 
-  <div class="header-spacer"></div> <!-- NEW: Spacer div to keep names below the embedded header -->
+  <div class="header-spacer"></div> <!-- Spacer to avoid overlapping background header -->
 
   <ul id="leaderboard" class="leaderboard-list"></ul>
 
   <script>
-    let currentPlayers = {};
+    let fullscreenButton = document.getElementById('fullscreenBtn');
+    let currentPlayers = {}; 
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
@@ -23,6 +24,15 @@
         document.exitFullscreen();
       }
     }
+
+    // Hide fullscreen button while in fullscreen
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        fullscreenButton.style.display = 'none';
+      } else {
+        fullscreenButton.style.display = 'block';
+      }
+    });
 
     function loadLeaderboard() {
       fetch('/api/players')
@@ -37,7 +47,7 @@
       leaderboard.innerHTML = '';
 
       const sortedPlayers = Object.entries(players)
-        .sort(([, a], [, b]) => b.score - a.score); // Highest score first
+        .sort(([, a], [, b]) => b.score - a.score); // Sort highest score first
 
       const topPlayerID = sortedPlayers.length > 0 ? sortedPlayers[0][0] : null;
 
@@ -55,10 +65,11 @@
 
         leaderboard.appendChild(row);
 
-        // Animate score
+        // Animate the score counting up
         animateScore(`score-${id}`, currentPlayers[id]?.score || 0, player.score);
       });
 
+      // Update current players memory
       currentPlayers = { ...players };
     }
 
@@ -82,7 +93,7 @@
     }
 
     window.addEventListener('load', loadLeaderboard);
-    setInterval(loadLeaderboard, 3000); // Refresh every 3 seconds
+    setInterval(loadLeaderboard, 3000); // Refresh leaderboard every 3 seconds
   </script>
 </body>
 </html>
