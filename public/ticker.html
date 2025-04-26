@@ -6,33 +6,41 @@
   <link rel="stylesheet" href="/ticker.css">
 </head>
 <body>
+  <button id="fullscreenBtn" class="fullscreen-button" onclick="toggleFullscreen()">Fullscreen</button>
+
   <div class="header-spacer"></div>
 
   <ul id="leaderboard" class="leaderboard-list"></ul>
 
   <script>
-    let currentPlayers = [];
-    let displayIndex = 0;
+    let fullscreenButton = document.getElementById('fullscreenBtn');
+    let playersData = [];
+    let currentIndex = 0;
     const HEADER_HEIGHT = 200;
-    const TRANSITION_INTERVAL = 2000; // 2 seconds per switch
+    const DISPLAY_COUNT = 5; // how many players show at once
+    const UPDATE_INTERVAL = 3000; // ms between changing players
 
-    async function loadLeaderboard() {
+    async function loadPlayers() {
       const response = await fetch('/api/players');
-      const playersData = await response.json();
-
-      currentPlayers = Object.entries(playersData)
+      const data = await response.json();
+      playersData = Object.entries(data)
         .sort(([, a], [, b]) => b.score - a.score)
-        .map(([id, player]) => player);
+        .map(([id, player]) => ({ id, ...player }));
 
-      updateLeaderboard();
+      renderPlayers();
     }
 
-    function updateLeaderboard() {
+    function renderPlayers() {
       const leaderboard = document.getElementById('leaderboard');
       leaderboard.innerHTML = '';
 
-      if (currentPlayers.length > 0) {
-        const player = currentPlayers[displayIndex];
+      const totalPlayers = playersData.length;
+      if (totalPlayers === 0) return;
+
+      for (let i = 0; i < Math.min(DISPLAY_COUNT, totalPlayers); i++) {
+        const playerIndex = (currentIndex + i) % totalPlayers;
+        const player = playersData[playerIndex];
+
         const li = document.createElement('li');
         li.innerHTML = `
           <span class="player-name">${player.name}</span>
@@ -43,22 +51,32 @@
     }
 
     function cyclePlayers() {
-      displayIndex = (displayIndex + 1) % currentPlayers.length;
-      updateLeaderboard();
+      if (playersData.length > DISPLAY_COUNT) {
+        currentIndex = (currentIndex + 1) % playersData.length;
+        renderPlayers();
+      }
     }
 
     async function start() {
-      await loadLeaderboard();
-      setInterval(cyclePlayers, TRANSITION_INTERVAL);
-      setInterval(loadLeaderboard, 3000); // refresh players every 3s
+      await loadPlayers();
+      setInterval(cyclePlayers, UPDATE_INTERVAL);
+      setInterval(loadPlayers, 5000); // refresh player list from server every 5s
     }
 
-    // Auto fullscreen on load
+    // Auto fullscreen
     async function requestFullscreen() {
       try {
         await document.documentElement.requestFullscreen();
       } catch (err) {
         console.log('Fullscreen error:', err);
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
       }
     }
 
@@ -75,9 +93,7 @@
     });
 
     document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
-        requestFullscreen(); // Try to re-enter fullscreen if exited
-      }
+      fullscreenButton.style.display = document.fullscreenElement ? 'none' : 'block';
     });
   </script>
 </body>
